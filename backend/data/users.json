@@ -7,5 +7,14 @@
     "role": "user",
     "createdAt": "2026-06-24T04:48:52.437Z",
     "updatedAt": "2026-06-24T04:48:52.437Z"
+  },
+  {
+    "id": 2,
+    "name": "Aarav Sharma",
+    "email": "aarav.sharma@example.com",
+    "password": "temporary123",
+    "role": "user",
+    "createdAt": "2026-06-24T06:14:18.900Z",
+    "updatedAt": "2026-06-24T06:14:18.900Z"
   }
 ]
