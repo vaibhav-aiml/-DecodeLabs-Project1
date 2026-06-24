@@ -89,30 +89,11 @@
     }
     
     /**
-     * Initialize contact form
+     * Initialize contact form with API integration
      */
     function initContactForm() {
         var form = document.getElementById('contactForm');
         if (!form) return;
-        
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validateContactForm(form)) {
-                var submitBtn = form.querySelector('button[type="submit"]');
-                var originalText = submitBtn.innerHTML;
-                
-                submitBtn.innerHTML = '<span>Sending...</span>';
-                submitBtn.disabled = true;
-                
-                setTimeout(function() {
-                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    form.reset();
-                }, 2000);
-            }
-        });
         
         // Clear errors on input
         form.querySelectorAll('input, textarea').forEach(function(field) {
@@ -128,6 +109,63 @@
                     }
                 }
             });
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateContactForm(form)) {
+                var submitBtn = form.querySelector('button[type="submit"]');
+                var originalText = submitBtn.innerHTML;
+                
+                // Show loading state
+                submitBtn.innerHTML = '<span>Sending...</span>';
+                submitBtn.disabled = true;
+                
+                // Get form data
+                var name = document.getElementById('name').value;
+                var email = document.getElementById('email').value;
+                var message = document.getElementById('message').value;
+                
+                // Send to backend API
+                fetch('http://localhost:5000/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: 'temporary123',
+                        role: 'user',
+                        message: message
+                    })
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('🎉 Registration successful! Welcome to DecodeLabs!', 'success');
+                        form.reset();
+                        // Refresh users list if available
+                        if (typeof loadUsers === 'function') {
+                            loadUsers();
+                        }
+                    } else {
+                        showToast('❌ ' + (data.message || 'Something went wrong'), 'error');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    showToast('❌ Failed to connect to server. Make sure backend is running.', 'error');
+                })
+                .finally(function() {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            }
         });
     }
     

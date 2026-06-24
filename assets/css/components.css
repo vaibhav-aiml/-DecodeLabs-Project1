@@ -1129,3 +1129,117 @@
 .footer-legal a:hover {
     color: var(--color-text);
 }
+/* ========================================
+   USERS SECTION
+   ======================================== */
+
+.users {
+    background: var(--color-bg-secondary);
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--color-bg-glass);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    transition: all var(--transition-base);
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 212, 255, 0.2);
+    box-shadow: var(--shadow-glow);
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--color-bg);
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.user-email {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+
+.user-role {
+    display: inline-block;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    margin-top: 0.25rem;
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.user-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.user-btn:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.delete-btn:hover {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.loading-users,
+.no-users,
+.api-error {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-text-secondary);
+}
+
+.loading-users .loader-spinner {
+    margin: 0 auto 1rem;
+}

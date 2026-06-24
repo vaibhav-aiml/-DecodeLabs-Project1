@@ -36,6 +36,126 @@
     .floating-element {
         display: none !important;
     }
+
+    /* Users Section Styles */
+    .users {
+        background: var(--color-bg-secondary);
+    }
+
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .user-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--color-bg-glass);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        transition: all var(--transition-base);
+    }
+
+    .user-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 212, 255, 0.2);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-bg);
+        flex-shrink: 0;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-name {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .user-email {
+        font-size: 0.8125rem;
+        color: var(--color-text-secondary);
+    }
+
+    .user-role {
+        display: inline-block;
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.15rem 0.5rem;
+        border-radius: var(--radius-full);
+        background: rgba(0, 212, 255, 0.1);
+        color: var(--color-primary);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        margin-top: 0.25rem;
+    }
+
+    .user-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .user-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-glass);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+    }
+
+    .user-btn:hover {
+        border-color: var(--color-primary);
+        transform: scale(1.05);
+    }
+
+    .delete-btn:hover {
+        border-color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .loading-users,
+    .no-users,
+    .api-error {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--color-text-secondary);
+    }
+
+    .loading-users .loader-spinner {
+        margin: 0 auto 1rem;
+    }
+
+    .api-error code {
+        background: var(--color-bg-glass);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+        color: var(--color-primary);
+    }
 </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,6 +200,7 @@
                 <li role="none"><a href="#services" role="menuitem">Services</a></li>
                 <li role="none"><a href="#about" role="menuitem">About</a></li>
                 <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+                <li role="none"><a href="#users" role="menuitem">Community</a></li>
                 <li role="none"><a href="#contact" role="menuitem" class="nav-cta">Contact</a></li>
             </ul>
             
@@ -503,6 +624,26 @@
             </div>
         </section>
 
+        <!-- ===== USERS SECTION (LIVE DATA FROM API) ===== -->
+        <section id="users" class="users section" aria-label="Users">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Live Data</span>
+                    <h2 class="section-title">Our <span class="gradient-text">Community</span></h2>
+                    <p class="section-subtitle">
+                        Real users registered through our API
+                    </p>
+                </div>
+                
+                <div id="usersList" class="users-grid">
+                    <div class="loading-users">
+                        <div class="loader-spinner"></div>
+                        <p>Loading users from API...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ===== FAQ SECTION ===== -->
         <section id="faq" class="faq section" aria-label="Frequently Asked Questions">
             <div class="container">
@@ -680,6 +821,7 @@
                         <li><a href="#features">Features</a></li>
                         <li><a href="#services">Services</a></li>
                         <li><a href="#about">About</a></li>
+                        <li><a href="#users">Community</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
                 </div>
@@ -732,6 +874,8 @@
     <script src="assets/js/counters.js"></script>
     <script src="assets/js/carousel.js"></script>
     <script src="assets/js/animations.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/users.js"></script>
     <script src="assets/js/forms.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
