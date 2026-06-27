@@ -1,22 +1,24 @@
 // ========================================
-// USER CONTROLLER - Request Handlers
+// USER CONTROLLER - MongoDB Version
 // ========================================
 
-const UserModel = require('../models/userModel');
+const User = require('../models/User');
 
 // ========================================
 // GET ALL USERS
 // ========================================
 
-const getAllUsers = (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        const users = UserModel.getAll();
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
+        
         res.status(200).json({
             success: true,
             count: users.length,
             data: users
         });
     } catch (error) {
+        console.error('Get all users error:', error);
         res.status(500).json({
             success: false,
             error: 'Server Error',
@@ -29,16 +31,15 @@ const getAllUsers = (req, res) => {
 // GET USER BY ID
 // ========================================
 
-const getUserById = (req, res) => {
+const getUserById = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const user = UserModel.getById(id);
+        const user = await User.findById(req.params.id).select('-password');
         
         if (!user) {
             return res.status(404).json({
                 success: false,
                 error: 'Not Found',
-                message: `User with ID ${id} does not exist`
+                message: `User with ID ${req.params.id} does not exist`
             });
         }
         
@@ -47,6 +48,7 @@ const getUserById = (req, res) => {
             data: user
         });
     } catch (error) {
+        console.error('Get user by ID error:', error);
         res.status(500).json({
             success: false,
             error: 'Server Error',
@@ -59,34 +61,51 @@ const getUserById = (req, res) => {
 // CREATE USER
 // ========================================
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, message } = req.body;
         
         // Check if user already exists
-        const existingUser = UserModel.getByEmail(email);
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                error: 'Validation Error',
+                error: 'Duplicate Error',
                 message: 'User with this email already exists'
             });
         }
         
         // Create user
-        const newUser = UserModel.create({
+        const user = await User.create({
             name,
-            email,
-            password, // In production, this should be hashed!
-            role: role || 'user'
+            email: email.toLowerCase(),
+            password,
+            role: role || 'user',
+            message
         });
+        
+        // Remove password from response
+        const userResponse = user.toObject();
+        delete userResponse.password;
         
         res.status(201).json({
             success: true,
             message: 'User created successfully',
-            data: newUser
+            data: userResponse
         });
     } catch (error) {
+        console.error('Create user error:', error);
+        
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                success: false,
+                error: 'Validation Error',
+                errors: errors
+            });
+        }
+        
         res.status(500).json({
             success: false,
             error: 'Server Error',
@@ -99,41 +118,47 @@ const createUser = (req, res) => {
 // UPDATE USER
 // ========================================
 
-const updateUser = (req, res) => {
+const updateUser = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, message } = req.body;
+        const userId = req.params.id;
         
         // Check if user exists
-        const existingUser = UserModel.getById(id);
+        const existingUser = await User.findById(userId);
         if (!existingUser) {
             return res.status(404).json({
                 success: false,
                 error: 'Not Found',
-                message: `User with ID ${id} does not exist`
+                message: `User with ID ${userId} does not exist`
             });
         }
         
         // Check if email is taken by another user
         if (email && email !== existingUser.email) {
-            const emailTaken = UserModel.getByEmail(email);
+            const emailTaken = await User.findOne({ email: email.toLowerCase() });
             if (emailTaken) {
                 return res.status(400).json({
                     success: false,
-                    error: 'Validation Error',
+                    error: 'Duplicate Error',
                     message: 'Email is already taken by another user'
                 });
             }
         }
         
-        // Update user
+        // Build update object
         const updateData = {};
         if (name) updateData.name = name;
-        if (email) updateData.email = email;
+        if (email) updateData.email = email.toLowerCase();
         if (password) updateData.password = password;
         if (role) updateData.role = role;
+        if (message) updateData.message = message;
         
-        const updatedUser = UserModel.update(id, updateData);
+        // Update user
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
         
         res.status(200).json({
             success: true,
@@ -141,6 +166,17 @@ const updateUser = (req, res) => {
             data: updatedUser
         });
     } catch (error) {
+        console.error('Update user error:', error);
+        
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                success: false,
+                error: 'Validation Error',
+                errors: errors
+            });
+        }
+        
         res.status(500).json({
             success: false,
             error: 'Server Error',
@@ -153,28 +189,29 @@ const updateUser = (req, res) => {
 // DELETE USER
 // ========================================
 
-const deleteUser = (req, res) => {
+const deleteUser = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const userId = req.params.id;
         
         // Check if user exists
-        const existingUser = UserModel.getById(id);
-        if (!existingUser) {
+        const user = await User.findById(userId);
+        if (!user) {
             return res.status(404).json({
                 success: false,
                 error: 'Not Found',
-                message: `User with ID ${id} does not exist`
+                message: `User with ID ${userId} does not exist`
             });
         }
         
         // Delete user
-        UserModel.delete(id);
+        await User.findByIdAndDelete(userId);
         
         res.status(200).json({
             success: true,
-            message: `User with ID ${id} deleted successfully`
+            message: `User with ID ${userId} deleted successfully`
         });
     } catch (error) {
+        console.error('Delete user error:', error);
         res.status(500).json({
             success: false,
             error: 'Server Error',
